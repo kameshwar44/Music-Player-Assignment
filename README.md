@@ -28,3 +28,6 @@ A modern, feature-rich music player built with React, Material-UI, and Howler.js
 
 ```bash
 git clone https://github.com/kameshwar44/Music-Player-Assignment.git
+
+```bash
+https://musicplayers4u.netlify.app/
