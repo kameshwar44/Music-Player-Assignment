@@ -397,22 +397,19 @@ function MainContent({ currentSong, setCurrentSong, onPlaySongInit }) {
     if (!song) return;
     
     try {
-      // First, stop and unload any currently playing song
+      // Stop any currently playing song
       if (currentSong?.howl) {
+        currentSong.howl.volume(1);
+        currentSong.howl.pause();
         currentSong.howl.stop();
         currentSong.howl.unload();
-        setCurrentSong(null); // Clear current song state
       }
-
-      // Wait a brief moment to ensure cleanup is complete
-      await new Promise(resolve => setTimeout(resolve, 50));
 
       // Create new Howl instance for the selected song
       const howl = new Howl({
         src: [song.url],
         html5: true,
         volume: 1,
-        preload: true, // Ensure audio is preloaded
         onload: () => {
           console.log(`${song.title} loaded successfully`);
         },
@@ -421,47 +418,27 @@ function MainContent({ currentSong, setCurrentSong, onPlaySongInit }) {
           setError(`Error loading ${song.title}`);
         },
         onplay: () => {
-          // Only update state if this is the current song
-          if (!currentSong || currentSong.id === song.id) {
-            setCurrentSong({ ...song, howl, isPlaying: true });
-          } else {
-            howl.stop(); // Stop if another song has taken over
-          }
+          setCurrentSong({ ...song, howl, isPlaying: true });
         },
         onpause: () => {
-          if (currentSong?.id === song.id) {
-            setCurrentSong(prev => ({ ...prev, isPlaying: false }));
-          }
+          setCurrentSong({ ...song, howl, isPlaying: false });
         },
         onend: () => {
-          howl.unload(); // Cleanup when song ends
-          if (currentSong?.id === song.id) {
-            setCurrentSong(prev => ({ ...prev, isPlaying: false }));
-            // Play next song after a brief delay
-            setTimeout(() => playAdjacentSong('next'), 50);
+          setCurrentSong({ ...song, howl, isPlaying: false });
+          // Play next song
+          const currentIndex = songs.findIndex(s => s.id === song.id);
+          if (currentIndex < songs.length - 1) {
+            playSong(songs[currentIndex + 1]);
           }
         },
         onstop: () => {
-          howl.unload(); // Cleanup when stopped
-          if (currentSong?.id === song.id) {
-            setCurrentSong(prev => ({ ...prev, isPlaying: false }));
-          }
+          setCurrentSong({ ...song, howl, isPlaying: false });
         }
       });
 
-      // Wait for the howl to load before playing
-      await new Promise((resolve, reject) => {
-        howl.once('load', resolve);
-        howl.once('loaderror', reject);
-      });
-
-      // Final check to ensure no other song has started playing
-      if (!currentSong || currentSong.id === song.id) {
-        howl.play();
-      } else {
-        howl.unload(); // Cleanup if another song has taken over
-      }
-
+      // Play the new song
+      howl.play();
+      setCurrentSong({ ...song, howl, isPlaying: true });
     } catch (err) {
       console.error('Error playing song:', err);
       setError(`Error playing ${song?.title || 'unknown song'}`);
