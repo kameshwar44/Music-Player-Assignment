@@ -27,4 +27,4 @@ A modern, feature-rich music player built with React, Material-UI, and Howler.js
 1. Clone the repository:
 
 ```bash
-git clone [
+git clone https://github.com/kameshwar44/Music-Player-Assignment.git
