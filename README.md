@@ -24,10 +24,9 @@ A modern, feature-rich music player built with React, Material-UI, and Howler.js
 
 ## Installation
 
+Live Demo - https://musicplayers4u.netlify.app/
+
 1. Clone the repository:
 
 ```bash
 git clone https://github.com/kameshwar44/Music-Player-Assignment.git
-
-```bash
-https://musicplayers4u.netlify.app/
